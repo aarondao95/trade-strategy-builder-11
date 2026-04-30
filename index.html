@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Trade Tool</title>
+</head>
+<body>
+
+<h1>Trade Strategy Tool</h1>
+
+<p>RSI:</p>
+<input id="rsi" type="number">
+
+<p>MACD:</p>
+<select id="macd">
+  <option value="bullish">Bullish</option>
+  <option value="bearish">Bearish</option>
+</select>
+
+<br><br>
+<button onclick="run()">Phân tích</button>
+
+<h2 id="result"></h2>
+
+<script>
+function run() {
+  var rsi = Number(document.getElementById("rsi").value);
+  var macd = document.getElementById("macd").value;
+
+  var buy = 0;
+  var sell = 0;
+
+  if (rsi < 30) buy += 2;
+  if (rsi > 70) sell += 2;
+
+  if (macd === "bullish") buy += 2;
+  if (macd === "bearish") sell += 2;
+
+  var text = "Chờ";
+
+  if (buy > sell) text = "BUY";
+  if (sell > buy) text = "SELL";
+
+  document.getElementById("result").innerHTML =
+    "Buy: " + buy + " | Sell: " + sell + "<br>" + text;
+}
+</script>
+
+</body>
+</html>
