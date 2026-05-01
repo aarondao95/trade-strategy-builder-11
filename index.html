@@ -1,440 +1,205 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trade Signal Builder V2</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EA Strategy Lab – Mô Phỏng Chiến Thuật Thông Minh | nhatkykiemtien.com</title>
+<!-- Sử dụng hệ Font chuẩn từ nguồn của anh -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --ink:      #0e0f14;
+  --ink2:     #181921;
+  --gold:     #c8973a;
+  --gold2:    #e8b86d;
+  --cream:    #f5f0e8;
+  --text2:    #4a4d5e;
+  --serif:    'Fraunces', Georgia, serif;
+  --sans:     'Instrument Sans', sans-serif;
+  --mono:     'JetBrains Mono', monospace;
+  --border:   rgba(200,151,58,.15);
+}
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: white;
-      padding: 24px;
-    }
+body { background: var(--cream); color: var(--ink); font-family: var(--sans); line-height: 1.6; padding: 20px; }
 
-    .container {
-      max-width: 850px;
-      margin: auto;
-      background: #111827;
-      padding: 28px;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    }
+/* CONTAINER CHÍNH - Thừa hưởng style từ */
+.lab-container {
+  max-width: 1000px; margin: 40px auto;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+}
 
-    h1 {
-      color: #38bdf8;
-      margin-bottom: 6px;
-    }
+.lab-header {
+  background: var(--ink); color: var(--gold2);
+  padding: 30px; text-align: center; border-bottom: 4px solid var(--gold);
+}
+.lab-header h2 { font-family: var(--serif); font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+.lab-header p { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; opacity: 0.8; }
 
-    p {
-      color: #cbd5e1;
-    }
+.lab-content { display: grid; grid-template-columns: 350px 1fr; gap: 0; }
+@media(max-width: 850px) { .lab-content { grid-template-columns: 1fr; } }
 
-    label {
-      display: block;
-      margin-top: 16px;
-      font-weight: bold;
-    }
+/* CẤU HÌNH BÊN TRÁI */
+.lab-sidebar { padding: 30px; background: #fafafa; border-right: 1px solid var(--border); }
+.config-group { margin-bottom: 24px; }
+.config-label { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; display: block; }
 
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 7px;
-      border-radius: 10px;
-      border: none;
-      font-size: 15px;
-      box-sizing: border-box;
-    }
+.input-field {
+  width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+  background: #fff; font-family: var(--sans); font-size: 14px; outline: none; transition: 0.2s;
+}
+.input-field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,151,58,0.1); }
 
-    button {
-      margin-top: 24px;
-      background: #22c55e;
-      color: #052e16;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.indicator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.check-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); cursor: pointer; }
+.check-item input { accent-color: var(--gold); }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
+.btn-simulate {
+  width: 100%; padding: 16px; border-radius: 8px; border: none;
+  background: var(--ink); color: var(--gold2);
+  font-family: var(--serif); font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: 0.3s; margin-top: 10px;
+}
+.btn-simulate:hover { background: var(--ink2); transform: translateY(-2px); }
 
-    .result {
-      margin-top: 24px;
-      background: #020617;
-      padding: 20px;
-      border-radius: 16px;
-      line-height: 1.7;
-    }
+/* KẾT QUẢ BÊN PHẢI */
+.lab-main { padding: 30px; background: #fff; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+.stat-box {
+  padding: 20px; border-radius: 12px; background: var(--ink); color: #fff; text-align: center;
+}
+.stat-val { font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--gold2); display: block; }
+.stat-lbl { font-family: var(--mono); font-size: 10px; color: var(--text2); text-transform: uppercase; margin-top: 4px; }
 
-    .buy { color: #22c55e; font-weight: bold; }
-    .sell { color: #ef4444; font-weight: bold; }
-    .wait { color: #facc15; font-weight: bold; }
+.chart-wrap { position: relative; height: 300px; margin-bottom: 30px; }
 
-    .cta {
-      display: block;
-      margin-top: 24px;
-      padding: 14px;
-      border-radius: 12px;
-      background: #2563eb;
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .warning {
-      margin-top: 18px;
-      color: #94a3b8;
-      font-size: 13px;
-    }
-
-    @media (max-width: 700px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+/* CTAs - Theo phong cách Broker Card[cite: 1] */
+.cta-footer {
+  padding: 30px; background: #fafafa; border-top: 1px solid var(--border);
+  display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
+}
+.cta-link {
+  padding: 10px 20px; border-radius: 6px; font-size: 12px; font-weight: 700;
+  text-decoration: none; font-family: var(--mono); transition: 0.2s;
+}
+.cta-vantage { background: var(--gold); color: var(--ink); }
+.cta-zalo { background: #0068ff; color: #fff; }
+</style>
 </head>
-
 <body>
-  <div class="container">
-    <h1>Trade Signal Builder V2</h1>
-    <p>Nhập tín hiệu kỹ thuật để chấm điểm cơ hội Buy/Sell theo RSI, MACD, EMA, MA, Bollinger Bands, ADX, Volume và khung thời gian.</p>
 
-    <div class="grid">
-      <div>
-        <label>Tài sản</label>
-        <select id="asset">
-          <option value="gold">Gold / XAUUSD</option>
-          <option value="btc">Bitcoin / BTC</option>
-          <option value="forex">Forex</option>
-          <option value="stock">Chứng khoán</option>
+<div class="lab-container">
+  <div class="lab-header">
+    <h2>STRATEGY LAB 2026</h2>
+    <p>THIẾT LẬP CHIẾN THUẬT EA · NHẬT KÝ KIẾM TIỀN</p>
+  </div>
+
+  <div class="lab-content">
+    <!-- Sidebar thiết lập[cite: 1] -->
+    <div class="lab-sidebar">
+      <div class="config-group">
+        <label class="config-label">1. Thị trường & Tài sản</label>
+        <select id="asset" class="input-field">
+          <option value="XAU">Vàng (XAUUSD)</option>
+          <option value="BTC">Bitcoin (BTCUSD)</option>
+          <option value="FX">Ngoại tệ (Forex Majors)</option>
         </select>
       </div>
 
-      <div>
-        <label>Khung thời gian phân tích</label>
-        <select id="timeframe">
-          <option value="M5">M5 - Scalping nhanh</option>
-          <option value="M15">M15 - Scalping an toàn hơn</option>
-          <option value="H1">H1 - Intraday</option>
-          <option value="H4">H4 - Swing ngắn hạn</option>
-          <option value="D1">D1 - Xu hướng lớn</option>
-        </select>
+      <div class="config-group">
+        <label class="config-label">2. Chỉ báo kỹ thuật (Logic)</label>
+        <div class="indicator-grid">
+          <label class="check-item"><input type="checkbox" class="indi" value="RSI" checked> RSI</label>
+          <label class="check-item"><input type="checkbox" class="indi" value="MA" checked> Moving Avg</label>
+          <label class="check-item"><input type="checkbox" class="indi" value="MACD"> MACD</label>
+          <label class="check-item"><input type="checkbox" class="indi" value="CCI"> CCI/ADX</label>
+        </div>
       </div>
+
+      <div class="config-group">
+        <label class="config-label">3. Vốn & Kỳ vọng (%/Tháng)</label>
+        <input type="number" id="capital" value="5000" class="input-field" style="margin-bottom:10px" placeholder="Vốn đầu tư ($)">
+        <input type="number" id="target" value="15" class="input-field" placeholder="Lợi nhuận mục tiêu %">
+      </div>
+
+      <button class="btn-simulate" onclick="runSimulation()">Chạy Mô Phỏng →</button>
     </div>
 
-    <div class="grid">
-      <div>
-        <label>Phiên giao dịch</label>
-        <select id="session">
-          <option value="asia">Phiên Á</option>
-          <option value="london">Phiên London</option>
-          <option value="newyork">Phiên New York</option>
-          <option value="overlap">London - New York overlap</option>
-        </select>
+    <!-- Kết quả hiển thị[cite: 1] -->
+    <div class="lab-main">
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-val" id="resProfit">+$0</span>
+          <span class="stat-lbl">Lợi nhuận 6T</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-val" id="resWR" style="color:#2d7a4f">0%</span>
+          <span class="stat-lbl">Win-Rate</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-val" id="resDD" style="color:#c53030">0%</span>
+          <span class="stat-lbl">Max Drawdown</span>
+        </div>
       </div>
 
-      <div>
-        <label>RSI hiện tại</label>
-        <input id="rsi" type="number" placeholder="Ví dụ: 35">
+      <div class="chart-wrap">
+        <canvas id="strategyChart"></canvas>
       </div>
-    </div>
-
-    <div class="grid">
-      <div>
-        <label>MACD</label>
-        <select id="macd">
-          <option value="bullish">MACD Bullish</option>
-          <option value="bearish">MACD Bearish</option>
-          <option value="neutral">MACD Trung tính</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Giá so với EMA 50</label>
-        <select id="priceEma">
-          <option value="above">Giá trên EMA 50</option>
-          <option value="below">Giá dưới EMA 50</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div>
-        <label>EMA 50 so với EMA 200</label>
-        <select id="emaTrend">
-          <option value="bullish">EMA 50 trên EMA 200</option>
-          <option value="bearish">EMA 50 dưới EMA 200</option>
-        </select>
-      </div>
-
-      <div>
-        <label>MA 20</label>
-        <select id="ma20">
-          <option value="above">Giá trên MA 20</option>
-          <option value="below">Giá dưới MA 20</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div>
-        <label>Bollinger Bands</label>
-        <select id="bb">
-          <option value="upper">Giá gần band trên</option>
-          <option value="middle">Giá quanh band giữa</option>
-          <option value="lower">Giá gần band dưới</option>
-          <option value="breakout_up">Breakout lên khỏi band trên</option>
-          <option value="breakout_down">Breakout xuống khỏi band dưới</option>
-        </select>
-      </div>
-
-      <div>
-        <label>ADX - sức mạnh xu hướng</label>
-        <select id="adx">
-          <option value="weak">ADX dưới 20 - xu hướng yếu</option>
-          <option value="medium">ADX 20-25 - xu hướng vừa</option>
-          <option value="strong">ADX trên 25 - xu hướng mạnh</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div>
-        <label>Volume</label>
-        <select id="volume">
-          <option value="high">Volume cao</option>
-          <option value="normal">Volume bình thường</option>
-          <option value="low">Volume thấp</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Xu hướng chính</label>
-        <select id="trend">
-          <option value="up">Xu hướng tăng</option>
-          <option value="down">Xu hướng giảm</option>
-          <option value="sideway">Sideway</option>
-        </select>
-      </div>
-    </div>
-
-    <button onclick="analyze()">Phân tích cơ hội giao dịch</button>
-
-    <div class="result" id="result">
-      Kết quả sẽ hiển thị tại đây.
-    </div>
-
-    <a class="cta" href="https://t.me/tcazcomunity" target="_blank">
-      Nhận BOT trade miễn phí tại cộng đồng TCAZ
-    </a>
-
-    <div class="warning">
-      Lưu ý: Công cụ chỉ hỗ trợ tham khảo chiến lược, không phải lời khuyên đầu tư. Luôn quản lý vốn và tự chịu trách nhiệm với quyết định giao dịch.
     </div>
   </div>
 
-  <script>
-    function analyze() {
-      const asset = document.getElementById("asset").value;
-      const timeframe = document.getElementById("timeframe").value;
-      const session = document.getElementById("session").value;
-      const rsi = Number(document.getElementById("rsi").value);
-      const macd = document.getElementById("macd").value;
-      const priceEma = document.getElementById("priceEma").value;
-      const emaTrend = document.getElementById("emaTrend").value;
-      const ma20 = document.getElementById("ma20").value;
-      const bb = document.getElementById("bb").value;
-      const adx = document.getElementById("adx").value;
-      const volume = document.getElementById("volume").value;
-      const trend = document.getElementById("trend").value;
+  <!-- Phễu chuyển đổi Affiliate[cite: 1] -->
+  <div class="cta-footer">
+    <a href="https://vigco.co/3uayqy" class="cta-link cta-vantage" target="_blank">Đăng ký Vantage nhận EA</a>
+    <a href="https://zalo.me/g/eblric263" class="cta-link cta-zalo" target="_blank">Vào Nhóm Zalo Hỗ Trợ</a>
+  </div>
+</div>
 
-      if (isNaN(rsi) || rsi < 0 || rsi > 100) {
-        document.getElementById("result").innerHTML = "Vui lòng nhập RSI hợp lệ từ 0 đến 100.";
-        return;
-      }
+<script>
+let chart;
+function runSimulation() {
+  const cap = parseFloat(document.getElementById('capital').value) || 0;
+  const target = parseFloat(document.getElementById('target').value) / 100;
+  const indis = document.querySelectorAll('.indi:checked').length;
+  
+  // Logic mô phỏng: Càng nhiều indi rủi ro càng thấp, lợi nhuận ổn định hơn
+  let winRate = 55 + (indis * 7);
+  let dd = (target * 100 * 1.5) - (indis * 3);
+  
+  let dataEA = [cap];
+  let dataManual = [cap];
+  let labels = ['Bắt đầu'];
 
-      let buy = 0;
-      let sell = 0;
-      let confidence = 0;
-      let notes = [];
+  for(let i=1; i<=6; i++) {
+    let lastEA = dataEA[dataEA.length-1];
+    dataEA.push(lastEA * (1 + target + (Math.random() * 0.04 - 0.02)));
+    
+    let lastMan = dataManual[dataManual.length-1];
+    dataManual.push(lastMan * (1 + (target * 0.3) + (Math.random() * 0.3 - 0.2)));
+    labels.push('Tháng ' + i);
+  }
 
-      if (rsi < 30) {
-        buy += 2;
-        notes.push("RSI dưới 30: thị trường có dấu hiệu quá bán, ưu tiên tìm cơ hội Buy hồi.");
-      } else if (rsi > 70) {
-        sell += 2;
-        notes.push("RSI trên 70: thị trường có dấu hiệu quá mua, ưu tiên tìm cơ hội Sell hồi.");
-      } else if (rsi >= 50 && rsi <= 60) {
-        buy += 1;
-        notes.push("RSI 50-60: phe mua đang nhỉnh hơn.");
-      } else if (rsi >= 40 && rsi < 50) {
-        sell += 1;
-        notes.push("RSI 40-50: phe bán đang nhỉnh hơn.");
-      } else {
-        notes.push("RSI trung tính: chưa tạo lợi thế rõ ràng.");
-      }
+  document.getElementById('resProfit').innerText = '+$' + (dataEA[6] - cap).toLocaleString(undefined, {maximumFractionDigits:0});
+  document.getElementById('resWR').innerText = Math.min(winRate, 92) + '%';
+  document.getElementById('resDD').innerText = Math.max(dd, 5).toFixed(1) + '%';
 
-      if (macd === "bullish") {
-        buy += 2;
-        notes.push("MACD bullish: động lượng tăng đang tốt.");
-      } else if (macd === "bearish") {
-        sell += 2;
-        notes.push("MACD bearish: động lượng giảm đang tốt.");
-      } else {
-        notes.push("MACD trung tính: chưa có xác nhận động lượng.");
-      }
-
-      if (priceEma === "above") {
-        buy += 1;
-        notes.push("Giá trên EMA 50: xu hướng ngắn hạn tích cực.");
-      } else {
-        sell += 1;
-        notes.push("Giá dưới EMA 50: xu hướng ngắn hạn tiêu cực.");
-      }
-
-      if (emaTrend === "bullish") {
-        buy += 2;
-        notes.push("EMA 50 trên EMA 200: xu hướng trung hạn tăng.");
-      } else {
-        sell += 2;
-        notes.push("EMA 50 dưới EMA 200: xu hướng trung hạn giảm.");
-      }
-
-      if (ma20 === "above") {
-        buy += 1;
-        notes.push("Giá trên MA 20: lực tăng ngắn hạn vẫn còn.");
-      } else {
-        sell += 1;
-        notes.push("Giá dưới MA 20: lực giảm ngắn hạn vẫn còn.");
-      }
-
-      if (bb === "lower") {
-        buy += 1;
-        notes.push("Giá gần Bollinger Band dưới: có thể xuất hiện nhịp hồi.");
-      } else if (bb === "upper") {
-        sell += 1;
-        notes.push("Giá gần Bollinger Band trên: có thể xuất hiện áp lực chốt lời.");
-      } else if (bb === "breakout_up") {
-        buy += 2;
-        notes.push("Breakout lên band trên: có khả năng tiếp diễn tăng nếu volume ủng hộ.");
-      } else if (bb === "breakout_down") {
-        sell += 2;
-        notes.push("Breakout xuống band dưới: có khả năng tiếp diễn giảm nếu volume ủng hộ.");
-      } else {
-        notes.push("Giá quanh band giữa: thị trường đang cân bằng.");
-      }
-
-      if (adx === "strong") {
-        confidence += 2;
-        notes.push("ADX mạnh: tín hiệu theo trend đáng tin hơn.");
-      } else if (adx === "medium") {
-        confidence += 1;
-        notes.push("ADX vừa: có xu hướng nhưng chưa quá mạnh.");
-      } else {
-        notes.push("ADX yếu: tránh đuổi lệnh, dễ nhiễu.");
-      }
-
-      if (volume === "high") {
-        confidence += 2;
-        notes.push("Volume cao: tín hiệu có độ xác nhận tốt hơn.");
-      } else if (volume === "low") {
-        confidence -= 1;
-        notes.push("Volume thấp: tín hiệu dễ nhiễu, nên giảm khối lượng.");
-      } else {
-        notes.push("Volume bình thường: chưa tạo lợi thế đặc biệt.");
-      }
-
-      if (trend === "up") {
-        buy += 2;
-        notes.push("Xu hướng chính tăng: ưu tiên Buy theo trend.");
-      } else if (trend === "down") {
-        sell += 2;
-        notes.push("Xu hướng chính giảm: ưu tiên Sell theo trend.");
-      } else {
-        notes.push("Thị trường sideway: ưu tiên đánh biên hoặc chờ breakout.");
-      }
-
-      let decision = "";
-      let action = "";
-      let sessionNote = "";
-      let timeframeNote = "";
-
-      if (session === "asia") {
-        sessionNote = "Phiên Á thường phù hợp quan sát sideway, scalping nhẹ, hạn chế vào lệnh lớn khi volume yếu.";
-      } else if (session === "london") {
-        sessionNote = "Phiên London thường có biến động tốt, phù hợp tìm breakout hoặc hồi về vùng kỹ thuật.";
-      } else if (session === "newyork") {
-        sessionNote = "Phiên New York thường biến động mạnh, cần kiểm soát SL và tránh vào lệnh khi tin tức lớn.";
-      } else {
-        sessionNote = "Khung London - New York overlap thường biến động mạnh nhất, chỉ nên vào khi tín hiệu rõ.";
-      }
-
-      if (timeframe === "M5") {
-        timeframeNote = "M5 phù hợp scalping nhanh, nên chốt ngắn và không giữ lệnh lâu.";
-      } else if (timeframe === "M15") {
-        timeframeNote = "M15 phù hợp scalping an toàn hơn M5, nên chờ tín hiệu đồng thuận.";
-      } else if (timeframe === "H1") {
-        timeframeNote = "H1 phù hợp giao dịch trong ngày, tín hiệu có độ ổn định tốt hơn.";
-      } else if (timeframe === "H4") {
-        timeframeNote = "H4 phù hợp swing ngắn hạn, cần kiên nhẫn chờ vùng đẹp.";
-      } else {
-        timeframeNote = "D1 phù hợp xác định xu hướng lớn, không nên dùng để vào lệnh quá ngắn.";
-      }
-
-      const totalBuy = buy + confidence;
-      const totalSell = sell + confidence;
-
-      if (buy >= sell + 4) {
-        decision = "<span class='buy'>ƯU TIÊN BUY</span>";
-        action = "Kịch bản: Chờ giá hồi về EMA 50 / MA 20 / vùng hỗ trợ gần nhất. Chỉ Buy khi có nến xác nhận. SL dưới vùng hỗ trợ, rủi ro mỗi lệnh 1-2% tài khoản.";
-      } else if (sell >= buy + 4) {
-        decision = "<span class='sell'>ƯU TIÊN SELL</span>";
-        action = "Kịch bản: Chờ giá hồi lên EMA 50 / MA 20 / vùng kháng cự gần nhất. Chỉ Sell khi có nến xác nhận. SL trên vùng kháng cự, rủi ro mỗi lệnh 1-2% tài khoản.";
-      } else {
-        decision = "<span class='wait'>CHỜ THÊM TÍN HIỆU</span>";
-        action = "Kịch bản: Tín hiệu chưa đủ lệch. Không nên vào lệnh vội. Chờ RSI, MACD, EMA và xu hướng chính đồng thuận rõ hơn.";
-      }
-
-      let assetName = "";
-      if (asset === "gold") assetName = "Gold / XAUUSD";
-      if (asset === "btc") assetName = "Bitcoin / BTC";
-      if (asset === "forex") assetName = "Forex";
-      if (asset === "stock") assetName = "Chứng khoán";
-
-      document.getElementById("result").innerHTML = `
-        <h2>Kết quả phân tích</h2>
-        <p><strong>Tài sản:</strong> ${assetName}</p>
-        <p><strong>Khung thời gian:</strong> ${timeframe}</p>
-        <p><strong>Buy Score:</strong> ${buy}/13</p>
-        <p><strong>Sell Score:</strong> ${sell}/13</p>
-        <p><strong>Độ xác nhận:</strong> ${confidence}/4</p>
-        <p><strong>Kết luận:</strong> ${decision}</p>
-
-        <hr>
-
-        <p><strong>Gợi ý chiến lược:</strong></p>
-        <p>${action}</p>
-
-        <p><strong>Gợi ý theo khung giờ:</strong></p>
-        <p>${sessionNote}</p>
-
-        <p><strong>Gợi ý theo timeframe:</strong></p>
-        <p>${timeframeNote}</p>
-
-        <hr>
-
-        <p><strong>Diễn giải tín hiệu:</strong></p>
-        <ul>
-          ${notes.map(note => `<li>${note}</li>`).join("")}
-        </ul>
-      `;
-    }
-  </script>
+  if(chart) chart.destroy();
+  const ctx = document.getElementById('strategyChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Kỷ luật EA', data: dataEA, borderColor: '#c8973a', backgroundColor: 'rgba(200,151,58,0.1)', fill: true, tension: 0.4 },
+        { label: 'Trade Cảm Xúc', data: dataManual, borderColor: '#8a8d9e', borderDash: [5,5], tension: 0.4 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+}
+window.onload = runSimulation;
+</script>
 </body>
 </html>
